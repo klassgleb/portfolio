@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Глеб Класс — Разработка Web-сервисов, Telegram Mini Apps и ботов</title>
+    <meta name="description" content="Портфолио Глеба Класса. Кастомная разработка веб-приложений, Telegram Mini Apps и автоматизация бизнеса под ключ без шаблонов и конструкторов.">
+    
+    <!-- Подключение шрифтов Google Fonts: Newsreader (элегантная антиква в духе Claude) и Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        serif: ['Newsreader', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        claude: {
+                            bg: '#FAF9F6',
+                            surface: '#F4F2EC',
+                            card: '#FFFFFF',
+                            border: '#E5E3DC',
+                            text: '#191919',
+                            muted: '#5E5D59',
+                            accent: '#D97757',
+                            accentHover: '#C56343',
+                            // Темная тема в стиле Claude Dark
+                            darkBg: '#191918',
+                            darkSurface: '#222220',
+                            darkCard: '#262624',
+                            darkBorder: '#363633',
+                            darkText: '#ECEBE6',
+                            darkMuted: '#9E9D97',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 12px -2px rgba(25, 25, 25, 0.04), 0 1px 3px -1px rgba(25, 25, 25, 0.03)',
+                        'card-hover': '0 10px 25px -5px rgba(25, 25, 25, 0.06), 0 4px 10px -3px rgba(25, 25, 25, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Базовые настройки плавности и кастомный скроллбар */
+        body {
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .serif-heading {
+            font-family: 'Newsreader', Georgia, serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* Анимация появления модального окна */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-animate {
+            animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Плавное появление тост-уведомления */
+        @keyframes toastSlideUp {
+            from { opacity: 0; transform: translate(-50%, 16px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .toast-show {
+            animation: toastSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-claude-bg text-claude-text dark:bg-claude-darkBg dark:text-claude-darkText transition-colors duration-200 selection:bg-claude-accent/20 selection:text-claude-accent">
+
+    <!-- Всплывающее уведомление (Toast) вместо alert() -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden items-center gap-2.5 px-4 py-2.5 rounded-full bg-claude-text text-claude-bg dark:bg-claude-darkText dark:text-claude-darkBg text-sm font-medium shadow-lg">
+        <svg class="w-4 h-4 text-claude-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span id="toast-message">Скопировано в буфер обмена</span>
+    </div>
+
+    <!-- Шапка сайта (Sticky Navigation) -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-claude-bg/85 dark:bg-claude-darkBg/85 border-b border-claude-border dark:border-claude-darkBorder transition-colors duration-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- Логотип / Имя -->
+            <a href="#" class="flex items-center gap-2.5 group">
+                <span class="w-7 h-7 rounded-lg bg-claude-accent/15 text-claude-accent flex items-center justify-center font-serif font-medium text-base group-hover:bg-claude-accent group-hover:text-white transition-colors">
+                    К
+                </span>
+                <span class="font-medium tracking-tight text-base">Глеб Класс</span>
+            </a>
+
+            <!-- Навигационные ссылки (Desktop) -->
+            <nav class="hidden md:flex items-center gap-7 text-sm text-claude-muted dark:text-claude-darkMuted">
+                <a href="#cases" class="hover:text-claude-text dark:hover:text-claude-darkText transition-colors">Кейсы</a>
+                <a href="#services" class="hover:text-claude-text dark:hover:text-claude-darkText transition-colors">Услуги и условия</a>
+                <a href="#process" class="hover:text-claude-text dark:hover:text-claude-darkText transition-colors">Как работаем</a>
+                <a href="#contacts" class="hover:text-claude-text dark:hover:text-claude-darkText transition-colors">Контакты</a>
+            </nav>
+
+            <!-- Правая панель: Переключатель темы и CTA -->
+            <div class="flex items-center gap-2.5">
+                <button id="theme-toggle" type="button" aria-label="Переключить тему" class="p-2.5 rounded-xl border border-claude-border dark:border-claude-darkBorder bg-claude-card dark:bg-claude-darkCard text-claude-muted dark:text-claude-darkMuted hover:text-claude-text dark:hover:text-claude-darkText transition-colors">
+                    <!-- Иконка Солнца (для темной темы) -->
+                    <svg id="sun-icon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                    <!-- Иконка Луны (для светлой темы) -->
+                    <svg id="moon-icon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+                </button>
+
+                <a href="https://t.me/KlassGleb01" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-sm font-medium transition-colors shadow-soft">
+                    <span>Написать в Telegram</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. HERO-БЛОК -->
+        <section class="pt-14 pb-16 sm:pt-24 sm:pb-24 px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Бейдж доступности -->
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm text-claude-muted dark:text-claude-darkMuted mb-7">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>Открыт к новым проектам · Глеб Класс, 19 лет</span>
+                </div>
+
+                <!-- Главный заголовок -->
+                <h1 class="serif-heading text-3xl sm:text-5xl md:text-[54px] font-normal leading-[1.12] text-claude-text dark:text-claude-darkText mb-6">
+                    Создаю кастомные веб-сервисы, <span class="italic text-claude-accent">Telegram Mini Apps</span> и ботов для бизнеса
+                </h1>
+
+                <!-- Подзаголовок -->
+                <p class="text-base sm:text-lg text-claude-muted dark:text-claude-darkMuted max-w-2xl leading-relaxed mb-9">
+                    Автоматизирую рутинную работу сотрудников, внедряю онлайн-заказы, бронирование и прием платежей. Разрабатываю полностью с нуля чистым кодом — без шаблонных конструкторов и ограничений в гибкости.
+                </p>
+
+                <!-- Кнопки действий -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 mb-12">
+                    <a href="https://t.me/KlassGleb01" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white font-medium text-sm sm:text-base transition-all shadow-soft">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                        <span>Обсудить задачу в Telegram</span>
+                    </a>
+                    <a href="#cases" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder hover:border-claude-muted/50 text-claude-text dark:text-claude-darkText font-medium text-sm sm:text-base transition-all">
+                        <span>Посмотреть кейсы</span>
+                        <svg class="w-4 h-4 text-claude-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Технический стек (аккуратные плашки) -->
+                <div class="pt-8 border-t border-claude-border dark:border-claude-darkBorder">
+                    <p class="text-xs uppercase tracking-wider text-claude-muted dark:text-claude-darkMuted mb-3.5 font-medium">Ключевой стек технологий</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">Python (FastAPI / aiogram)</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">JavaScript / TypeScript</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">Telegram Mini Apps API</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">PostgreSQL / SQLite</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">HTML5 / Tailwind CSS</span>
+                        <span class="px-3 py-1.5 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs sm:text-sm font-medium">Linux / Bash / VPS Деплой</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. РАЗДЕЛ КЕЙСОВ -->
+        <section id="cases" class="py-16 sm:py-20 px-4 sm:px-6 bg-claude-surface/60 dark:bg-claude-darkSurface/50 border-y border-claude-border dark:border-claude-darkBorder">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+                    <div>
+                        <span class="text-xs font-medium uppercase tracking-wider text-claude-accent block mb-2">Практика и решения</span>
+                        <h2 class="serif-heading text-3xl sm:text-4xl font-normal">Реализованные кейсы</h2>
+                    </div>
+                    <p class="text-sm text-claude-muted dark:text-claude-darkMuted max-w-md">
+                        Каждый проект спроектирован индивидуально под бизнес-процессы клиента. Нажмите на любой кейс, чтобы изучить архитектуру и результаты.
+                    </p>
+                </div>
+
+                <!-- Сетка карточек кейсов -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Кейс 1 -->
+                    <article onclick="openCaseModal(0)" class="group cursor-pointer rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 flex flex-col justify-between shadow-soft hover:shadow-card-hover hover:border-claude-accent/50 transition-all duration-200">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-2.5 py-1 rounded-md bg-claude-accent/10 text-claude-accent text-xs font-medium">HoReCa · Mini App</span>
+                                <span class="text-xs text-claude-muted dark:text-claude-darkMuted group-hover:text-claude-accent transition-colors flex items-center gap-1">
+                                    Подробнее
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                            <h3 class="serif-heading text-xl font-medium mb-2.5 group-hover:text-claude-accent transition-colors">
+                                Telegram Mini App для ресторана и службы доставки
+                            </h3>
+                            <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-5">
+                                Полноценное приложение внутри Telegram с интерактивным меню, корзиной, онлайн-оплатой и модулем бронирования столиков по времени.
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-claude-border dark:border-claude-darkBorder">
+                            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-3">
+                                ✓ Оформление заказа за 30 секунд без звонков
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">Python FastAPI</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">JavaScript</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">PostgreSQL</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Кейс 2 -->
+                    <article onclick="openCaseModal(1)" class="group cursor-pointer rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 flex flex-col justify-between shadow-soft hover:shadow-card-hover hover:border-claude-accent/50 transition-all duration-200">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-2.5 py-1 rounded-md bg-claude-accent/10 text-claude-accent text-xs font-medium">Автоматизация · Бот</span>
+                                <span class="text-xs text-claude-muted dark:text-claude-darkMuted group-hover:text-claude-accent transition-colors flex items-center gap-1">
+                                    Подробнее
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                            <h3 class="serif-heading text-xl font-medium mb-2.5 group-hover:text-claude-accent transition-colors">
+                                Система клиентского сервиса, рассылок и модерации
+                            </h3>
+                            <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-5">
+                                Автоматизированный комплекс для компании по производству мебели: прием заявок, расчет предварительной стоимости, сегментированные рассылки и модерация чатов.
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-claude-border dark:border-claude-darkBorder">
+                            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-3">
+                                ✓ Снято 80% рутинной нагрузки с менеджеров
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">Python aiogram</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">SQLite</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">Linux VPS</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Кейс 3 -->
+                    <article onclick="openCaseModal(2)" class="group cursor-pointer rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 flex flex-col justify-between shadow-soft hover:shadow-card-hover hover:border-claude-accent/50 transition-all duration-200">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-2.5 py-1 rounded-md bg-claude-accent/10 text-claude-accent text-xs font-medium">Web-портал · Услуги</span>
+                                <span class="text-xs text-claude-muted dark:text-claude-darkMuted group-hover:text-claude-accent transition-colors flex items-center gap-1">
+                                    Подробнее
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+                                </span>
+                            </div>
+                            <h3 class="serif-heading text-xl font-medium mb-2.5 group-hover:text-claude-accent transition-colors">
+                                Веб-приложение бронирования и админ-панель для СПА
+                            </h3>
+                            <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-5">
+                                Адаптивный сайт с выбором свободных окон в реальном времени, онлайн-предоплатой и удобной панелью управления расписанием для администраторов.
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-claude-border dark:border-claude-darkBorder">
+                            <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-3">
+                                ✓ Полный отказ от бумажных журналов записи
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">TypeScript</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">Python Backend</span>
+                                <span class="px-2 py-0.5 rounded bg-claude-surface dark:bg-claude-darkSurface text-[11px] text-claude-muted dark:text-claude-darkMuted">REST API</span>
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. УСЛУГИ, СОПРОВОЖДЕНИЕ И ОПЛАТА -->
+        <section id="services" class="py-16 sm:py-24 px-4 sm:px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="mb-12">
+                    <span class="text-xs font-medium uppercase tracking-wider text-claude-accent block mb-2">Формат сотрудничества</span>
+                    <h2 class="serif-heading text-3xl sm:text-4xl font-normal mb-3">Услуги, поддержка и условия оплаты</h2>
+                    <p class="text-sm sm:text-base text-claude-muted dark:text-claude-darkMuted max-w-2xl">
+                        Прозрачные правила работы без скрытых доплат. Вы получаете готовый, протестированный инструмент, который принадлежит только вашему бизнесу.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Карточка 1: Индивидуальная разработка -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 sm:p-7 shadow-soft">
+                        <div class="w-10 h-10 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex items-center justify-center text-claude-accent mb-5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="serif-heading text-2xl font-medium mb-3">Разработка с нуля под ключ</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-4">
+                            Создаю веб-сайты, Telegram Mini Apps и ботов специально под задачи кафе, отелей, магазинов, стартапов и производств. Никаких конструкторов вроде Tilda или BotHelp — только чистый код.
+                        </p>
+                        <ul class="space-y-2 text-sm text-claude-text/90 dark:text-claude-darkText/90">
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">•</span>
+                                <span>Прием онлайн-заказов, управление доставкой и бронью</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">•</span>
+                                <span>Интеграция платежных форм и систем уведомлений</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">•</span>
+                                <span>Удобные админ-панели для контроля заявок</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Карточка 2: Ежемесячное сопровождение (Выделенный акцент) -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border-2 border-claude-accent/40 p-6 sm:p-7 shadow-soft relative overflow-hidden">
+                        <div class="inline-block px-2.5 py-0.5 rounded-md bg-claude-accent/15 text-claude-accent text-xs font-medium mb-4">
+                            Опционально после запуска
+                        </div>
+                        <h3 class="serif-heading text-2xl font-medium mb-3">Полное техническое сопровождение</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-4">
+                            После сдачи проекта я могу взять на себя его полное ежемесячное содержание за фиксированную плату. Вам не нужно разбираться в серверах или искать программистов для мелких правок.
+                        </p>
+                        <ul class="space-y-2 text-sm text-claude-text/90 dark:text-claude-darkText/90">
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">✓</span>
+                                <span>Настройка, оплата и администрирование хостинга / VPS</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">✓</span>
+                                <span>Мониторинг стабильности 24/7 и резервное копирование</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-claude-accent mt-0.5">✓</span>
+                                <span>Оперативный фикс багов, корректировка контента и доработки</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Карточка 3: Схема оплаты 40/60 -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 sm:p-7 shadow-soft">
+                        <div class="w-10 h-10 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex items-center justify-center text-claude-accent mb-5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="serif-heading text-2xl font-medium mb-3">Безопасная оплата 40% / 60%</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-4">
+                            Стоимость рассчитывается индивидуально исходя из сложности логики и сроков. Работа строится по честной двухэтапной схеме:
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="p-3.5 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder">
+                                <div class="text-xl font-serif font-medium text-claude-accent mb-0.5">40%</div>
+                                <div class="text-xs text-claude-muted dark:text-claude-darkMuted">Предоплата перед началом разработки</div>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder">
+                                <div class="text-xl font-serif font-medium text-claude-text dark:text-claude-darkText mb-0.5">60%</div>
+                                <div class="text-xs text-claude-muted dark:text-claude-darkMuted">Только после полной проверки и сдачи</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Карточка 4: Способы перевода -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 sm:p-7 shadow-soft">
+                        <div class="w-10 h-10 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex items-center justify-center text-claude-accent mb-5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="serif-heading text-2xl font-medium mb-3">Удобные способы оплаты</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed mb-4">
+                            Принимаю оплату из Казахстана и любых других стран без лишних комиссий посредников:
+                        </p>
+                        <div class="space-y-2.5 text-sm">
+                            <div class="p-3 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex items-center justify-between">
+                                <span class="font-medium">Банковская карта VISA (Казахстан)</span>
+                                <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">Основной</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex items-center justify-between">
+                                <span class="font-medium">Криптовалюта (USDT)</span>
+                                <span class="text-xs text-claude-muted dark:text-claude-darkMuted">Если недоступен перевод на карту РК</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ЭТАПЫ РАБОТЫ -->
+        <section id="process" class="py-16 sm:py-20 px-4 sm:px-6 bg-claude-surface/60 dark:bg-claude-darkSurface/50 border-y border-claude-border dark:border-claude-darkBorder">
+            <div class="max-w-5xl mx-auto">
+                <div class="mb-12">
+                    <span class="text-xs font-medium uppercase tracking-wider text-claude-accent block mb-2">Процесс</span>
+                    <h2 class="serif-heading text-3xl sm:text-4xl font-normal">Как строится работа над проектом</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <!-- Шаг 1 -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-5">
+                        <span class="font-serif text-2xl text-claude-accent block mb-3">01</span>
+                        <h3 class="font-medium text-base mb-2">Обсуждение и ТЗ</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed">
+                            Разбираем ваши задачи, согласовываем функционал, сроки и точную стоимость разработки.
+                        </p>
+                    </div>
+
+                    <!-- Шаг 2 -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-5">
+                        <span class="font-serif text-2xl text-claude-accent block mb-3">02</span>
+                        <h3 class="font-medium text-base mb-2">Предоплата 40%</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed">
+                            Фиксируем договоренности, вы вносите предоплату на карту VISA (РК) или USDT, и я приступаю к коду.
+                        </p>
+                    </div>
+
+                    <!-- Шаг 3 -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-5">
+                        <span class="font-serif text-2xl text-claude-accent block mb-3">03</span>
+                        <h3 class="font-medium text-base mb-2">Разработка и тесты</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed">
+                            Пишу архитектуру, показываю промежуточные версии на тестовом сервере и вношу нужные правки.
+                        </p>
+                    </div>
+
+                    <!-- Шаг 4 -->
+                    <div class="rounded-2xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-5">
+                        <span class="font-serif text-2xl text-claude-accent block mb-3">04</span>
+                        <h3 class="font-medium text-base mb-2">Запуск и остаток 60%</h3>
+                        <p class="text-sm text-claude-muted dark:text-claude-darkMuted leading-relaxed">
+                            После вашей финальной проверки оплачивается остаток 60%. Передаю проект или беру его на ежемесячную поддержку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. КОНТАКТЫ -->
+        <section id="contacts" class="py-16 sm:py-24 px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="rounded-3xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-7 sm:p-12 shadow-soft">
+                    <div class="max-w-2xl mb-9">
+                        <span class="text-xs font-medium uppercase tracking-wider text-claude-accent block mb-2">Связаться со мной</span>
+                        <h2 class="serif-heading text-3xl sm:text-4xl font-normal mb-3">Готовы автоматизировать ваш бизнес?</h2>
+                        <p class="text-sm sm:text-base text-claude-muted dark:text-claude-darkMuted leading-relaxed">
+                            Напишите мне в удобный мессенджер и кратко опишите вашу задачу. Я бесплатно проконсультирую, предложу оптимальное техническое решение и сориентирую по срокам.
+                        </p>
+                    </div>
+
+                    <!-- Карточки контактов -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        
+                        <!-- Telegram -->
+                        <div class="p-4 rounded-2xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs text-claude-muted dark:text-claude-darkMuted mb-1">Telegram (быстрый ответ)</div>
+                                <a href="https://t.me/KlassGleb01" target="_blank" rel="noopener noreferrer" class="font-medium text-base hover:text-claude-accent transition-colors block mb-3">
+                                    @KlassGleb01
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="https://t.me/KlassGleb01" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-2 px-3 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-xs font-medium transition-colors">
+                                    Написать
+                                </a>
+                                <button onclick="copyText('@KlassGleb01', 'Никнейм Telegram скопирован')" class="p-2 rounded-xl border border-claude-border dark:border-claude-darkBorder bg-claude-card dark:bg-claude-darkCard hover:border-claude-accent/50 text-claude-muted hover:text-claude-text dark:hover:text-claude-darkText transition-colors" title="Скопировать">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div class="p-4 rounded-2xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs text-claude-muted dark:text-claude-darkMuted mb-1">WhatsApp</div>
+                                <a href="https://wa.me/77712624034" target="_blank" rel="noopener noreferrer" class="font-medium text-base hover:text-claude-accent transition-colors block mb-3">
+                                    +7 771 262 40 34
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="https://wa.me/77712624034" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-2 px-3 rounded-xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder hover:border-claude-accent text-xs font-medium transition-colors">
+                                    Открыть чат
+                                </a>
+                                <button onclick="copyText('+77712624034', 'Номер WhatsApp скопирован')" class="p-2 rounded-xl border border-claude-border dark:border-claude-darkBorder bg-claude-card dark:bg-claude-darkCard hover:border-claude-accent/50 text-claude-muted hover:text-claude-text dark:hover:text-claude-darkText transition-colors" title="Скопировать">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="p-4 rounded-2xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs text-claude-muted dark:text-claude-darkMuted mb-1">Электронная почта</div>
+                                <a href="mailto:klassgleb45@gmail.com" class="font-medium text-sm sm:text-base hover:text-claude-accent transition-colors block mb-3 truncate">
+                                    klassgleb45@gmail.com
+                                </a>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="mailto:klassgleb45@gmail.com" class="flex-1 text-center py-2 px-3 rounded-xl bg-claude-card dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder hover:border-claude-accent text-xs font-medium transition-colors">
+                                    Написать письмо
+                                </a>
+                                <button onclick="copyText('klassgleb45@gmail.com', 'Email адрес скопирован')" class="p-2 rounded-xl border border-claude-border dark:border-claude-darkBorder bg-claude-card dark:bg-claude-darkCard hover:border-claude-accent/50 text-claude-muted hover:text-claude-text dark:hover:text-claude-darkText transition-colors" title="Скопировать">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Подвал (Footer) -->
+    <footer class="border-t border-claude-border dark:border-claude-darkBorder py-8 px-4 sm:px-6 text-sm text-claude-muted dark:text-claude-darkMuted">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-medium text-claude-text dark:text-claude-darkText">Глеб Класс</span>
+                <span>·</span>
+                <span>Кастомная разработка для бизнеса</span>
+            </div>
+            <div class="text-xs">
+                © 2026 Все права защищены. Чистый код без конструкторов.
+            </div>
+        </div>
+    </footer>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ДЕТАЛЬНОГО ПРОСМОТРА КЕЙСА -->
+    <div id="case-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/45 backdrop-blur-xs" onclick="closeCaseModal(event)">
+        <div class="modal-animate relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-claude-bg dark:bg-claude-darkCard border border-claude-border dark:border-claude-darkBorder p-6 sm:p-8 shadow-2xl" onclick="event.stopPropagation()">
+            
+            <!-- Кнопка закрытия -->
+            <button onclick="closeCaseModal()" aria-label="Закрыть окно" class="absolute top-5 right-5 p-2 rounded-xl bg-claude-surface dark:bg-claude-darkSurface text-claude-muted hover:text-claude-text dark:hover:text-claude-darkText transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <span id="modal-tag" class="inline-block px-3 py-1 rounded-lg bg-claude-accent/15 text-claude-accent text-xs font-medium mb-3"></span>
+            <h3 id="modal-title" class="serif-heading text-2xl sm:text-3xl font-normal mb-6 pr-8"></h3>
+
+            <div class="space-y-5 text-sm sm:text-base leading-relaxed">
+                <div class="p-4 rounded-2xl bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-claude-muted dark:text-claude-darkMuted mb-1.5">Задача клиента</div>
+                    <p id="modal-problem" class="text-claude-text dark:text-claude-darkText"></p>
+                </div>
+
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-wider text-claude-muted dark:text-claude-darkMuted mb-1.5">Техническое решение</div>
+                    <p id="modal-solution" class="text-claude-muted dark:text-claude-darkMuted"></p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1.5">Результат для бизнеса</div>
+                    <p id="modal-result" class="text-claude-text dark:text-claude-darkText font-medium"></p>
+                </div>
+
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-wider text-claude-muted dark:text-claude-darkMuted mb-2">Использованный стек</div>
+                    <div id="modal-stack" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-5 border-t border-claude-border dark:border-claude-darkBorder flex flex-col sm:flex-row items-center justify-between gap-3">
+                <span class="text-xs text-claude-muted dark:text-claude-darkMuted">Нужно похожее решение под ваши задачи?</span>
+                <a href="https://t.me/KlassGleb01" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-claude-accent hover:bg-claude-accentHover text-white text-sm font-medium transition-colors">
+                    Заказать похожий проект
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript логика: тема, модальные окна, копирование в буфер -->
+    <script>
+        // Данные для детального просмотра кейсов
+        const casesData = [
+            {
+                tag: "HoReCa · Telegram Mini App",
+                title: "Telegram Mini App для ресторана и службы доставки",
+                problem: "Заведение теряло часть заказов в пиковые вечерние часы из-за перегруженной телефонной линии. Администраторы вручную записывали доставку и бронь столов, что приводило к ошибкам и задержкам.",
+                solution: "Разработано полноценное веб-приложение внутри Telegram (Mini App) с быстрым каталогом блюд, модификаторами, корзиной, выбором адреса доставки и интерактивным бронированием столиков по дате и времени. Настроен мгновенный прием онлайн-оплаты и отдельный Telegram-бот уведомлений для кухни и администратора.",
+                result: "Среднее время оформления заказа сократилось до 30 секунд. Разгрузили персонал от рутинных звонков, а конверсия в повторные заказы выросла за счет удобного интерфейса прямо в мессенджере.",
+                stack: ["Python 3", "FastAPI", "JavaScript (ES6+)", "Telegram WebApp API", "PostgreSQL", "Linux VPS"]
+            },
+            {
+                tag: "Производство и B2C · Автоматизация",
+                title: "Система клиентского сервиса, рассылок и модерации",
+                problem: "Компании по изготовлению мебели под заказ требовалось автоматизировать первичную консультацию клиентов, сбор параметров для расчета стоимости и регулярное информирование базы клиентов об акциях.",
+                solution: "Создан отказоустойчивый Telegram-бот с пошаговым калькулятором заявки, интеграцией с базой данных для хранения профилей клиентов, модулем сегментированных рассылок без блокировок и автоматической модерацией спама в клиентском чате.",
+                result: "Автоматизировано до 80% первичных обращений. Менеджеры теперь получают уже структурированные заявки с размерами и контактами клиента.",
+                stack: ["Python 3", "aiogram", "SQLite / PostgreSQL", "APScheduler", "Systemd", "Linux"]
+            },
+            {
+                tag: "Сфера услуг · Web-портал и Админ-панель",
+                title: "Веб-приложение бронирования и админ-панель для СПА",
+                problem: "Клиентам приходилось писать в мессенджеры и ждать ответа администратора, чтобы узнать свободные окна на процедуры. Учет велся в таблицах вручную, возникали накладки в графике мастеров.",
+                solution: "Спроектирован минималистичный адаптивный веб-сайт с онлайн-записью в свободные слоты графика в реальном времени. Разработана закрытая админ-панель для управления расписанием мастеров, подтверждения броней и автоматического напоминания клиентам о визите.",
+                result: "Полный отказ от ручного ведения графика, снижение числа неявок клиентов благодаря авто-напоминаниям и круглосуточный прием записей без участия администратора.",
+                stack: ["TypeScript", "HTML5 / Tailwind CSS", "Python Backend", "REST API", "Nginx"]
+            }
+        ];
+
+        // Открытие модального окна кейса
+        function openCaseModal(index) {
+            const data = casesData[index];
+            if (!data) return;
+
+            document.getElementById('modal-tag').textContent = data.tag;
+            document.getElementById('modal-title').textContent = data.title;
+            document.getElementById('modal-problem').textContent = data.problem;
+            document.getElementById('modal-solution').textContent = data.solution;
+            document.getElementById('modal-result').textContent = data.result;
+
+            const stackContainer = document.getElementById('modal-stack');
+            stackContainer.innerHTML = '';
+            data.stack.forEach(tech => {
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1 rounded-lg bg-claude-surface dark:bg-claude-darkSurface border border-claude-border dark:border-claude-darkBorder text-xs font-medium';
+                badge.textContent = tech;
+                stackContainer.appendChild(badge);
+            });
+
+            const modal = document.getElementById('case-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Закрытие модального окна
+        function closeCaseModal() {
+            const modal = document.getElementById('case-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Закрытие по клавише Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeCaseModal();
+        });
+
+        // Копирование текста в буфер обмена с безопасным фоллбэком
+        function copyText(text, message) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(message);
+            } catch (err) {
+                showToast('Не удалось скопировать');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Показ всплывающего уведомления
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = message;
+            
+            toast.classList.remove('hidden');
+            toast.classList.add('flex', 'toast-show');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex', 'toast-show');
+            }, 2500);
+        }
+
+        // Переключение светлой / темной темы с сохранением выбора
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        // Проверка сохраненной темы или системных настроек
+        if (localStorage.getItem('theme') === 'dark' || 
+           (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            const isDark = htmlElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
